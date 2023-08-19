@@ -2,7 +2,9 @@ import React, { useEffect, useState } from "react";
 import searchMovies from "../query/search";
 import Movie from "../components/Movie";
 import styled from "styled-components";
-import useLazyImagesLoader from "../hooks/useLazyImagesLoader";
+// import useLazyImagesLoader from "../hooks/useLazyImagesLoader";
+import { BASE_IMAGE_URL } from "../const";
+import LoadingBox from "../components/LoadingBox";
 
 const Container = styled.div`
   min-height: 100vh;
@@ -31,12 +33,15 @@ const SearchInputBox = styled.input`
   }
 `;
 
+const LoadingBoxes = ({ width, height }) => {
+  return Array.from({ length: 20 }).map((_, i) => (
+    <LoadingBox width={width} height={height} />
+  ));
+};
+
 const Search = () => {
   const [movies, setMovies] = useState([]);
-  //   const [imagesLoaded, setImagesLoaded] = useState(false);
-
-  //   const imagesLoaded = useLazyImagesLoader(movies);
-  const imagesLoaded = true;
+  const [imagesLoaded, setImagesLoaded] = useState(false);
 
   const handleChange = async ({ target }) => {
     if (target.value === "") {
@@ -47,9 +52,35 @@ const Search = () => {
     setMovies(movies);
   };
 
-  //   useEffect(() => {
-  // setImagesLoaded(useLazyImagesLoader(movies));
-  //   }, [movies]);
+  useEffect(() => {
+    if (movies === []) {
+      setImagesLoaded(true);
+      return;
+    }
+    setImagesLoaded(false);
+    const moviesWithPoster = movies.filter(
+      (movie) => movie.poster_path !== null
+    );
+    const promiseImages = moviesWithPoster.map(
+      (movie) =>
+        new Promise((resolve, reject) => {
+          const image = new Image();
+          image.onload = resolve;
+          image.onerror = reject;
+          image.src = `${BASE_IMAGE_URL}${movie.poster_path}`;
+        })
+    );
+
+    Promise.all(promiseImages)
+      .then(() => {
+        setTimeout(() => {
+          setImagesLoaded(true);
+        }, 1000);
+      })
+      .catch((error) => {
+        console.error("Image loading failed:", error);
+      });
+  }, [movies]);
 
   return (
     <Container>
@@ -58,21 +89,23 @@ const Search = () => {
         placeholder="Search..."
         onChange={handleChange}
       />
-      {imagesLoaded ? (
-        <MoviesContainer>
-          {movies.map((movie) => (
-            <Movie
-              title={movie.title}
-              rating={movie.vote_average}
-              poster={movie.poster_path}
-              width={"10rem"}
-              height={"18rem"}
-            />
-          ))}
-        </MoviesContainer>
-      ) : (
-        <div>Loading...</div>
-      )}
+      <MoviesContainer>
+        {imagesLoaded ? (
+          <>
+            {movies.map((movie) => (
+              <Movie
+                title={movie.title}
+                rating={movie.vote_average}
+                poster={movie.poster_path}
+                width={"10rem"}
+                height={"18rem"}
+              />
+            ))}
+          </>
+        ) : (
+          <LoadingBoxes width="10rem" height="18rem" />
+        )}
+      </MoviesContainer>
     </Container>
   );
 };
