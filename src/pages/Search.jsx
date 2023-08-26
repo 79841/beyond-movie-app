@@ -1,22 +1,17 @@
-import React, { useEffect, useState } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 import searchMovies from "../query/search";
 import Movie from "../components/Movie";
 import styled from "styled-components";
-// import useLazyImagesLoader from "../hooks/useLazyImagesLoader";
-import { BASE_IMAGE_URL } from "../const";
-import LoadingBox from "../components/LoadingBox";
+import LoadingBox, { LoadingBoxes } from "../components/LoadingBox";
+import useImagesPreloader from "../hooks/useImagesPreloader";
+import { moviePostersPreload } from "../utils/imagePreload";
+// import SearchedMovies from "../components/search/SearchedMovies";
 
 const Container = styled.div`
+  width: 100%;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  align-items: center;
-`;
-
-const MoviesContainer = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-around;
   align-items: center;
 `;
 
@@ -33,15 +28,13 @@ const SearchInputBox = styled.input`
   }
 `;
 
-const LoadingBoxes = ({ width, height }) => {
-  return Array.from({ length: 20 }).map((_, i) => (
-    <LoadingBox width={width} height={height} />
-  ));
-};
+const SearchedMovies = React.lazy(() =>
+  import("../components/search/SearchedMovies")
+);
 
 const Search = () => {
   const [movies, setMovies] = useState([]);
-  const [imagesLoaded, setImagesLoaded] = useState(false);
+  // const [imagesLoaded, setImagePaths] = useImagesPreloader([]);
 
   const handleChange = async ({ target }) => {
     if (target.value === "") {
@@ -52,35 +45,17 @@ const Search = () => {
     setMovies(movies);
   };
 
-  useEffect(() => {
-    if (movies === []) {
-      setImagesLoaded(true);
-      return;
-    }
-    setImagesLoaded(false);
-    const moviesWithPoster = movies.filter(
-      (movie) => movie.poster_path !== null
-    );
-    const promiseImages = moviesWithPoster.map(
-      (movie) =>
-        new Promise((resolve, reject) => {
-          const image = new Image();
-          image.onload = resolve;
-          image.onerror = reject;
-          image.src = `${BASE_IMAGE_URL}${movie.poster_path}`;
-        })
-    );
+  // useEffect(() => {
+  //   setImagePaths(() =>
+  //     movies
+  //       .map((movie) => movie.poster_path)
+  //       .filter((posterPath) => posterPath !== null)
+  //   );
+  // }, [movies, setImagePaths]);
 
-    Promise.all(promiseImages)
-      .then(() => {
-        setTimeout(() => {
-          setImagesLoaded(true);
-        }, 1000);
-      })
-      .catch((error) => {
-        console.error("Image loading failed:", error);
-      });
-  }, [movies]);
+  useEffect(() => {
+    moviePostersPreload(movies, 1000);
+  });
 
   return (
     <Container>
@@ -89,13 +64,16 @@ const Search = () => {
         placeholder="Search..."
         onChange={handleChange}
       />
-      <MoviesContainer>
+
+      {/* <MoviesContainer>
         {imagesLoaded ? (
           <>
             {movies.map((movie) => (
               <Movie
+                key={movie.id}
                 title={movie.title}
                 rating={movie.vote_average}
+
                 poster={movie.poster_path}
                 width={"10rem"}
                 height={"18rem"}
@@ -105,7 +83,10 @@ const Search = () => {
         ) : (
           <LoadingBoxes width="10rem" height="18rem" />
         )}
-      </MoviesContainer>
+      </MoviesContainer> */}
+      <Suspense fallback={<h1>loading...</h1>}>
+        <SearchedMovies movies={movies} />
+      </Suspense>
     </Container>
   );
 };

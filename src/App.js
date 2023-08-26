@@ -11,25 +11,26 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   padding: 1rem;
-  padding-left: 16rem;
+  margin-left: 15rem;
   background-color: #eee;
+  justify-content: center;
+  align-items: center;
+  overflow-y: scroll;
 `;
 
 const App = () => {
   return (
-    <>
-      <Container>
-        <Header />
-        <BrowserRouter>
-          <Nav />
-          <Routes>
-            <Route exact path="/" element={<Home />} />
-            <Route exact path="/genre" element={<Genre />} />
-            <Route exact path="/search" element={<Search />} />
-          </Routes>
-        </BrowserRouter>
-      </Container>
-    </>
+    <Container>
+      <Header />
+      <BrowserRouter>
+        <Nav />
+        <Routes>
+          <Route exact path="/" element={<Home />} />
+          <Route exact path="/genre" element={<Genre />} />
+          <Route exact path="/search" element={<Search />} />
+        </Routes>
+      </BrowserRouter>
+    </Container>
   );
 };
 

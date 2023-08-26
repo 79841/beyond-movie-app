@@ -24,8 +24,8 @@ const getMoviesByGenre = async (genreId) => {
     },
   };
 
-  const result = await (await fetch(url, options)).json();
-  return result;
+  const { results: movies } = await (await fetch(url, options)).json();
+  return movies;
 };
 
 export { getGenres, getMoviesByGenre };

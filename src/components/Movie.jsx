@@ -7,15 +7,17 @@ const Container = styled.div`
   flex-direction: column;
   justify-content: flex;
   align-items: center;
-  width: ${({ width }) => width || "30rem"};
-  height: ${({ height }) => height || "60rem"};
+  width: ${({ width }) => width || "20rem"};
+  height: ${({ height }) => height || "40rem"};
   margin: 1rem;
+  margin-bottom: 3rem;
 `;
 
 const MovieLink = styled.a`
   width: 100%;
-  height: 80%;
+  height: 85%;
   margin-bottom: 5%;
+  text-decoration: none;
 `;
 
 const Poster = styled.img`
@@ -24,11 +26,31 @@ const Poster = styled.img`
   object-fit: cover;
 `;
 
+const NoPoster = styled.div`
+  width: ${({ width }) => width || "100%"};
+  height: 100%;
+  background-color: #ccc;
+  color: #999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: fantasy;
+`;
+
 const MovieInfo = styled.div`
-  height: 15%;
+  height: 10%;
   display: flex;
   flex-direction: column;
   align-items: center;
+  font-size: 0.8rem;
+`;
+
+const MovieRating = styled.div`
+  color: red;
+`;
+
+const MovieTitle = styled.div`
+  text-align: center;
 `;
 
 const Movie = ({ id, title, poster, overview, rating, width, height }) => {
@@ -39,11 +61,15 @@ const Movie = ({ id, title, poster, overview, rating, width, height }) => {
         target={"_blank"}
         rel="noreferrer"
       >
-        <Poster width={width} src={BASE_IMAGE_URL + poster} alt={title} />
+        {poster ? (
+          <Poster width={width} src={BASE_IMAGE_URL + poster} alt={title} />
+        ) : (
+          <NoPoster>No Poster</NoPoster>
+        )}
       </MovieLink>
       <MovieInfo>
-        <div className="rating">{rating}</div>
-        <div className="title">{title}</div>
+        <MovieRating className="rating">{rating}</MovieRating>
+        <MovieTitle className="title">{title}</MovieTitle>
         {overview ? <div className="overview">{overview}</div> : null}
       </MovieInfo>
     </Container>

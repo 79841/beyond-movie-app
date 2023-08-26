@@ -1,15 +1,10 @@
 import React from "react";
 import styled from "styled-components";
 
-const Container = styled.div`
-  width: ${({ width }) => width || "30rem"};
-  height: ${({ height }) => height || "60rem"};
-  margin: 1rem;
-`;
-
 const ImageLoadingBox = styled.div`
-  width: 100%;
-  height: 80%;
+  min-width: ${({ width }) => width || "20rem"};
+  height: ${({ height }) => height || "40rem"};
+  margin: 1rem;
   background-color: #ccc;
   display: flex;
   justify-content: center;
@@ -19,10 +14,16 @@ const ImageLoadingBox = styled.div`
 
 const LoadingBox = ({ width, height }) => {
   return (
-    <Container width={width} height={height}>
-      <ImageLoadingBox>Loading...</ImageLoadingBox>
-    </Container>
+    <ImageLoadingBox width={width} height={height}>
+      Loading...
+    </ImageLoadingBox>
   );
+};
+
+export const LoadingBoxes = ({ width = "20rem", height = "40rem" }) => {
+  return Array.from({ length: 20 }).map((_, i) => (
+    <LoadingBox width={width} height={height} key={i} />
+  ));
 };
 
 export default LoadingBox;

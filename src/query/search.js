@@ -11,7 +11,7 @@ const searchMovies = async (keyword) => {
   };
 
   const { results: movies } = await (await fetch(url, options)).json();
-  console.log(movies);
+
   return movies;
 };
 
